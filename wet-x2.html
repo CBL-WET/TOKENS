@@ -1,11 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WET-X2</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glow Layout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #121121;
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: white;
+
+    /* subtle dot grid */
+    transition: background-position 0.3s ease-out;
+    background-image: radial-gradient(rgba(128, 128, 128, 0.2) 1px, transparent 0);
+    background-size: 30px 30px;
+    background-position: 30px 30px;
+  }
+
+  .top-glow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+  }
+
+  .glow-image {
+    width: 60%;
+    max-width: 400px;
+    object-fit: contain;
+    animation: pulseGlow 2.5s infinite ease-in-out;
+  }
+
+  @keyframes pulseGlow {
+    0% {
+      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 35px #FF7C06) drop-shadow(0 0 70px #FF7C06);
+      transform: scale(1.05);
+    }
+    100% {
+      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      transform: scale(1);
+    }
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    position: relative; /* needed for background image positioning */
+  }
+
+  .text-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 700px;
+    position: relative;
+    z-index: 1; /* above background image */
+  }
+
+  .text-large {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .text-medium {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  /* Background image behind text */
+  .background-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; /* adjust size */
+    max-width: 600px;
+    opacity: 0.1; /* 10% opacity */
+    z-index: 0; /* behind text */
+    pointer-events: none; /* allows clicks on text */
+  }
+
+  /* Desktop enhancements */
+  @media (min-width: 1024px) {
+    body {
+      background:
+        radial-gradient(rgba(128, 128, 128, 0.2) 1.5px, transparent 0),
+        radial-gradient(circle at top, #1e1b2f 0%, #121121 100%);
+      background-size: 30px 30px, auto;
+      background-position: 30px 30px, 0 0;
+    }
+
+    .top-glow {
+      padding-top: 5%;
+    }
+
+    .glow-image {
+      width: 20%;
+      max-width: 500px;
+    }
+
+    .text-large {
+      font-size: 36px;
+    }
+
+    .text-medium {
+      font-size: 20px;
+    }
+
+    /* hide background image on desktop if desired */
+    .background-img {
+      width: 20%;
+      max-width: 500px;
+    }
+  }
+</style>
 </head>
 <body>
-    WET-X2 Temp Page
+  <div class="top-glow">
+    <img src="WET10@2x.png" alt="Glow Image" class="glow-image" />
+  </div>
+
+  <div class="content">
+    <!-- Background image behind text -->
+    <img src="WET10_B@2x.png" alt="" class="background-img" />
+
+    <div class="text-stack">
+      <div class="text-large"><b>5XWF0 CBL</b> Wireless Energy Transfer Token</div>
+      <div class="text-medium">
+        Property of the course and its main lecturer.
+        If found, or if not deemed worthy, return to 
+        the course lecturer or the Flux building reception desk.
+      </div>
+      <div class="text-large">“Worthiness is earned through discipline.”</div>
+    </div>
+  </div>
 </body>
 </html>

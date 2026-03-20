@@ -1,11 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WET-X1</title>
+    <title>Interactive Vector Field</title>
+    <style>
+        html, body { margin: 0; background: #0b0b0b; overflow: hidden; }
+        canvas { display: block; cursor: crosshair; }
+    </style>
 </head>
+
 <body>
-    WET-X1 Temp Page
+<canvas id="c"></canvas>
+
+<script>
+const c = document.getElementById("c");
+const ctx = c.getContext("2d");
+
+let w, h;
+let grid;
+let t = 0;
+
+/* field config */
+const maxLen = 30; // The threshold for "max strength" coloring
+
+/* vector sources */
+let sources = [];
+let mouseSource = { x: -1000, y: -1000, s: 2000 }; // Positive = Repel, Negative = Attract
+
+function placeSources() {
+    // Reset sources but keep the mouseSource reference
+    if (w > h) { // landscape
+        let x = w * 0.1;
+        let y = h * 0.5;
+        sources = [
+            { x: x,   y: y, s: 4000 },
+            { x: w-x, y: y, s: -4000 },
+            mouseSource
+        ];
+    } else { // portrait
+        let x = w * 0.5;
+        let y = h * 0.1;
+        sources = [
+            { x: x, y: y,   s: 4000 },
+            { x: x, y: h-y, s: -4000 },
+            mouseSource
+        ];
+    }
+}
+
+function resize() {
+    w = c.width = innerWidth;
+    h = c.height = innerHeight;
+    // Adjust grid density based on screen size
+    grid = Math.min(w, h) / 25;
+    placeSources();
+}
+
+/* Interaction Listeners */
+window.addEventListener("resize", resize);
+
+window.addEventListener("mousemove", (e) => {
+    mouseSource.x = e.clientX;
+    mouseSource.y = e.clientY;
+});
+
+window.addEventListener("mousedown", () => {
+    mouseSource.s *= -1; // Flip between attract and repel
+});
+
+window.addEventListener("mouseleave", () => {
+    mouseSource.x = -1000;
+    mouseSource.y = -1000;
+});
+
+resize();
+
+function field(x, y) {
+    let vx = 0, vy = 0;
+
+    for (let i = 0; i < sources.length; i++) {
+        const s = sources[i];
+        let dx = x - s.x;
+        let dy = y - s.y;
+        let r2 = dx * dx + dy * dy + 0.0001;
+        
+        // Inverse Square Law
+        let f = s.s / r2;
+
+        vx += dx * f;
+        vy += dy * f;
+    }
+    return [vx, vy];
+}
+
+function arrow(x, y, vx, vy, magnitude) {
+    // magnitude is normalized (0 to 1)
+    const lengthScale = magnitude * 25; 
+    const osc = Math.sin(t);
+
+    let ex = x + vx * lengthScale * osc;
+    let ey = y + vy * lengthScale * osc;
+
+    if (Math.abs(lengthScale) < 0.1) return;
+
+    // Map magnitude to HSL Hue (240 Blue -> 0 Red)
+    const hue = (1 - magnitude) * 240;
+    ctx.strokeStyle = `hsl(${hue}, 80%, 60%)`;
+    
+    // Scale thickness with intensity
+    ctx.lineWidth = 1;  
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(ex, ey);
+    
+    // Simple dynamic arrowhead
+    let a = Math.atan2(vy, vx) + (osc < 0 ? Math.PI : 0);
+    let h = 1 + (magnitude * 4); 
+    
+    ctx.lineTo(ex - Math.cos(a - 0.4) * h, ey - Math.sin(a - 0.4) * h);
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - Math.cos(a + 0.4) * h, ey - Math.sin(a + 0.4) * h);
+
+    ctx.stroke();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, w, h);
+
+    for (let y = 0; y < h; y += grid) {
+        for (let x = 0; x < w; x += grid) {
+            let [vx, vy] = field(x, y);
+            let m = Math.hypot(vx, vy);
+
+            if (m > 0) {
+                let dx = vx / m;
+                let dy = vy / m;
+
+                // Normalize magnitude based on maxLen config
+                let displayMag = Math.min(m / maxLen, 1);
+
+                arrow(x, y, dx, dy, displayMag);
+            }
+        }
+    }
+}
+
+function loop() {
+    t += 0.02; // Speed of the oscillation
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
+
+</script>
 </body>
 </html>
