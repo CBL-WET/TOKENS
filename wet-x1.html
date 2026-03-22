@@ -1,159 +1,172 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Interactive Vector Field</title>
-    <style>
-        html, body { margin: 0; background: #0b0b0b; overflow: hidden; }
-        canvas { display: block; cursor: crosshair; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WET-X1</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #121121;
+    font-family: 'Montserrat', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: white;
+
+    /* subtle dot grid */
+    transition: background-position 0.3s ease-out;
+    background-image: radial-gradient(rgba(128, 128, 128, 0.2) 1px, transparent 0);
+    background-size: 30px 30px;
+    background-position: 30px 30px;
+  }
+
+  .top-glow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+  }
+
+  .glow-image {
+    width: 60%;
+    max-width: 400px;
+    object-fit: contain;
+    animation: pulseGlow 2.5s infinite ease-in-out;
+  }
+
+  @keyframes pulseGlow {
+    0% {
+      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 35px #FF7C06) drop-shadow(0 0 70px #FF7C06);
+      transform: scale(1.05);
+    }
+    100% {
+      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      transform: scale(1);
+    }
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    position: relative; /* needed for background image positioning */
+  }
+
+  .text-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 700px;
+    position: relative;
+    z-index: 1; /* above background image */
+  }
+
+  .text-large {
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .text-medium {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  /* Background image behind text */
+  .background-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%; /* adjust size */
+    max-width: 600px;
+    opacity: 0.1; /* 10% opacity */
+    z-index: 0; /* behind text */
+    pointer-events: none; /* allows clicks on text */
+  }
+
+  span {
+    display: none;
+  }
+
+  /* Desktop enhancements */
+  @media (min-width: 1024px) {
+    span {
+        display: block;
+        font-style: italic;
+        color: rgba(128, 128, 128, 0.3);
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    body {
+      background:
+        radial-gradient(rgba(128, 128, 128, 0.2) 1.5px, transparent 0),
+        radial-gradient(circle at top, #1e1b2f 0%, #121121 100%);
+      background-size: 30px 30px, auto;
+      background-position: 30px 30px, 0 0;
+    }
+
+    .top-glow {
+      padding-top: 5%;
+    }
+
+    .glow-image {
+      width: 20%;
+      max-width: 500px;
+    }
+
+    .text-large {
+      font-size: 36px;
+    }
+
+    .text-medium {
+      font-size: 20px;
+    }
+
+    /* hide background image on desktop if desired */
+    .background-img {
+      width: 20%;
+      max-width: 500px;
+    }
+  }
+</style>
 </head>
-
 <body>
-<canvas id="c"></canvas>
+    <span>WET-<b style="color:#FF7C06">F</b>1</span>
+  <div class="top-glow">
+    <img src="WET10@2x.png" alt="Glow Image" class="glow-image" />
+  </div>
 
-<script>
-const c = document.getElementById("c");
-const ctx = c.getContext("2d");
+  <div class="content">
+    <!-- Background image behind text -->
+    <img src="WET10_B@2x.png" alt="" class="background-img" />
 
-let w, h;
-let grid;
-let t = 0;
-
-/* field config */
-const maxLen = 30; // The threshold for "max strength" coloring
-
-/* vector sources */
-let sources = [];
-let mouseSource = { x: -1000, y: -1000, s: 2000 }; // Positive = Repel, Negative = Attract
-
-function placeSources() {
-    // Reset sources but keep the mouseSource reference
-    if (w > h) { // landscape
-        let x = w * 0.1;
-        let y = h * 0.5;
-        sources = [
-            { x: x,   y: y, s: 4000 },
-            { x: w-x, y: y, s: -4000 },
-            mouseSource
-        ];
-    } else { // portrait
-        let x = w * 0.5;
-        let y = h * 0.1;
-        sources = [
-            { x: x, y: y,   s: 4000 },
-            { x: x, y: h-y, s: -4000 },
-            mouseSource
-        ];
-    }
-}
-
-function resize() {
-    w = c.width = innerWidth;
-    h = c.height = innerHeight;
-    // Adjust grid density based on screen size
-    grid = Math.min(w, h) / 25;
-    placeSources();
-}
-
-/* Interaction Listeners */
-window.addEventListener("resize", resize);
-
-window.addEventListener("mousemove", (e) => {
-    mouseSource.x = e.clientX;
-    mouseSource.y = e.clientY;
-});
-
-window.addEventListener("mousedown", () => {
-    mouseSource.s *= -1; // Flip between attract and repel
-});
-
-window.addEventListener("mouseleave", () => {
-    mouseSource.x = -1000;
-    mouseSource.y = -1000;
-});
-
-resize();
-
-function field(x, y) {
-    let vx = 0, vy = 0;
-
-    for (let i = 0; i < sources.length; i++) {
-        const s = sources[i];
-        let dx = x - s.x;
-        let dy = y - s.y;
-        let r2 = dx * dx + dy * dy + 0.0001;
-        
-        // Inverse Square Law
-        let f = s.s / r2;
-
-        vx += dx * f;
-        vy += dy * f;
-    }
-    return [vx, vy];
-}
-
-function arrow(x, y, vx, vy, magnitude) {
-    // magnitude is normalized (0 to 1)
-    const lengthScale = magnitude * 25; 
-    const osc = Math.sin(t);
-
-    let ex = x + vx * lengthScale * osc;
-    let ey = y + vy * lengthScale * osc;
-
-    if (Math.abs(lengthScale) < 0.1) return;
-
-    // Map magnitude to HSL Hue (240 Blue -> 0 Red)
-    const hue = (1 - magnitude) * 240;
-    ctx.strokeStyle = `hsl(${hue}, 80%, 60%)`;
-    
-    // Scale thickness with intensity
-    ctx.lineWidth = 1;  
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(ex, ey);
-    
-    // Simple dynamic arrowhead
-    let a = Math.atan2(vy, vx) + (osc < 0 ? Math.PI : 0);
-    let h = 1 + (magnitude * 4); 
-    
-    ctx.lineTo(ex - Math.cos(a - 0.4) * h, ey - Math.sin(a - 0.4) * h);
-    ctx.moveTo(ex, ey);
-    ctx.lineTo(ex - Math.cos(a + 0.4) * h, ey - Math.sin(a + 0.4) * h);
-
-    ctx.stroke();
-}
-
-function draw() {
-    ctx.clearRect(0, 0, w, h);
-
-    for (let y = 0; y < h; y += grid) {
-        for (let x = 0; x < w; x += grid) {
-            let [vx, vy] = field(x, y);
-            let m = Math.hypot(vx, vy);
-
-            if (m > 0) {
-                let dx = vx / m;
-                let dy = vy / m;
-
-                // Normalize magnitude based on maxLen config
-                let displayMag = Math.min(m / maxLen, 1);
-
-                arrow(x, y, dx, dy, displayMag);
-            }
-        }
-    }
-}
-
-function loop() {
-    t += 0.02; // Speed of the oscillation
-    draw();
-    requestAnimationFrame(loop);
-}
-
-loop();
-
-</script>
+    <div class="text-stack">
+      <div class="text-large"><b>5XWF0 CBL</b> Wireless Energy Transfer Token</div>
+      <div class="text-medium">
+        Property of the course and its main lecturer.
+        If found, or if not deemed worthy, return to 
+        the course lecturer or the Flux building reception desk.
+      </div>
+      <div class="text-large">“<b style="color:#FF7C06">W</b>orthiness is earned through discipline.”</div>
+    </div>
+  </div>
 </body>
 </html>
+

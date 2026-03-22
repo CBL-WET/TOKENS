@@ -3,14 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Glow Layout</title>
+  <title>WET-X2</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     background-color: #121121;
@@ -19,39 +15,49 @@
     display: flex;
     flex-direction: column;
     color: white;
+    overflow: hidden;
 
-    /* subtle dot grid */
-    transition: background-position 0.3s ease-out;
     background-image: radial-gradient(rgba(128, 128, 128, 0.2) 1px, transparent 0);
     background-size: 30px 30px;
     background-position: 30px 30px;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
   }
 
   .top-glow {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-top: 10%;
+    padding-top: 80px;
+    z-index: 1;
   }
 
   .glow-image {
-    width: 60%;
-    max-width: 400px;
+    width: 80%;
+    max-width: 500px;
     object-fit: contain;
     animation: pulseGlow 2.5s infinite ease-in-out;
   }
 
   @keyframes pulseGlow {
     0% {
-      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      filter: drop-shadow(0 0 15px #00AFFF) drop-shadow(0 0 30px #00AFFF);
       transform: scale(1);
     }
     50% {
-      filter: drop-shadow(0 0 35px #FF7C06) drop-shadow(0 0 70px #FF7C06);
+      filter: drop-shadow(0 0 40px #00AFFF) drop-shadow(0 0 80px #00AFFF);
       transform: scale(1.05);
     }
     100% {
-      filter: drop-shadow(0 0 15px #FF7C06) drop-shadow(0 0 30px #FF7C06);
+      filter: drop-shadow(0 0 15px #00AFFF) drop-shadow(0 0 30px #00AFFF);
       transform: scale(1);
     }
   }
@@ -63,7 +69,8 @@
     align-items: center;
     text-align: center;
     padding: 20px;
-    position: relative; /* needed for background image positioning */
+    position: relative;
+    z-index: 1;
   }
 
   .text-stack {
@@ -72,86 +79,128 @@
     gap: 15px;
     max-width: 700px;
     position: relative;
-    z-index: 1; /* above background image */
+    z-index: 1;
   }
 
-  .text-large {
-    font-size: 28px;
-    font-weight: 700;
+  .text-large { font-size: 28px; font-weight: 700; }
+  .text-medium { font-size: 18px; font-weight: 400; line-height: 1.6; }
+    
+  span {
+    display: none;
   }
 
-  .text-medium {
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 1.6;
+  /* Desktop enhancements */
+  @media (min-width: 1024px) {
+    span {
+        display: block;
+        font-style: italic;
+        color: rgba(128, 128, 128, 0.3);
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
   }
 
-  /* Background image behind text */
   .background-img {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80%; /* adjust size */
+    width: 80%;
     max-width: 600px;
-    opacity: 0.1; /* 10% opacity */
-    z-index: 0; /* behind text */
-    pointer-events: none; /* allows clicks on text */
-  }
-
-  /* Desktop enhancements */
-  @media (min-width: 1024px) {
-    body {
-      background:
-        radial-gradient(rgba(128, 128, 128, 0.2) 1.5px, transparent 0),
-        radial-gradient(circle at top, #1e1b2f 0%, #121121 100%);
-      background-size: 30px 30px, auto;
-      background-position: 30px 30px, 0 0;
-    }
-
-    .top-glow {
-      padding-top: 5%;
-    }
-
-    .glow-image {
-      width: 20%;
-      max-width: 500px;
-    }
-
-    .text-large {
-      font-size: 36px;
-    }
-
-    .text-medium {
-      font-size: 20px;
-    }
-
-    /* hide background image on desktop if desired */
-    .background-img {
-      width: 20%;
-      max-width: 500px;
-    }
+    opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
   }
 </style>
 </head>
 <body>
-  <div class="top-glow">
-    <img src="WET10@2x.png" alt="Glow Image" class="glow-image" />
-  </div>
+    <span>WET-<b style="color:#00AFFF">L</b>2</span>
 
-  <div class="content">
-    <!-- Background image behind text -->
-    <img src="WET10_B@2x.png" alt="" class="background-img" />
+<canvas id="lightning"></canvas>
 
-    <div class="text-stack">
-      <div class="text-large"><b>5XWF0 CBL</b> Wireless Energy Transfer Token</div>
-      <div class="text-medium">
-        Property of the course and its main lecturer.
-        If found, or if not deemed worthy, return to 
-        the course lecturer or the Flux building reception desk.
-      </div>
-      <div class="text-large">“Worthiness is earned through discipline.”</div>
+<div class="top-glow">
+  <img src="WET5@2x.png" class="glow-image" />
+</div>
+
+<div class="content">
+  <img src="WET5_B@2x.png" class="background-img" />
+
+  <div class="text-stack">
+    <div class="text-large"><b>5XWF0 CBL</b> Wireless Energy Transfer Token</div>
+    <div class="text-medium">
+      Property of the course and its main lecturer.
+      If found, or if not deemed worthy, return to 
+      the course lecturer or the Flux building reception desk.
     </div>
+    <div class="text-large">“<b style="color:#00AFFF">E</b>nergy flow must not be disturbed.”</div>
   </div>
+</div>
+
+<script>
+const canvas = document.getElementById('lightning');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+function resize() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// === TUNABLE PARAMETERS ===
+let boltCount = 3;          // number of simultaneous bolts
+let frequency = 0.05;      // chance per frame (higher = more frequent)
+let maxSegments = 20;      // jaggedness
+
+function drawBolt(startX = width / 2, startY = 0, segments = maxSegments, branchChance = 0.01) {
+  let x = startX;
+  let y = startY;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+
+  for (let i = 0; i < segments; i++) {
+    // === outward spread from center ===
+    x += (Math.random() - 0.5) * 100; // wider horizontal spread
+    y += Math.random() * (height / maxSegments);
+
+    ctx.lineTo(x, y);
+
+    if (Math.random() < branchChance) {
+      drawBolt(x, y, segments / 2, branchChance * 0.6);
+    }
+  }
+
+  ctx.strokeStyle = 'rgba(0, 170, 255, 0.9)';
+  ctx.lineWidth = 2;
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = '#00AFFF';
+  ctx.stroke();
+}
+
+let lastTime = 0;
+let delay = 10; // milliseconds between updates (increase = slower)
+
+function animate(time) {
+  if (time - lastTime > delay) {
+    lastTime = time;
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (Math.random() < frequency) {
+      for (let i = 0; i < boltCount; i++) {
+        drawBolt();
+      }
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
 </body>
 </html>
